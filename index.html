@@ -7,370 +7,95 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg: #0a0e1a;
-    --surface: #111827;
-    --card: #1a2235;
-    --border: #1e2d45;
-    --accent: #3b82f6;
-    --accent2: #06b6d4;
-    --up: #22c55e;
-    --down: #ef4444;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Noto Sans KR', sans-serif;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 14px;
-    min-height: 100vh;
-  }
-
-  /* Header */
-  .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-  }
-  .logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
-  .header-right { display: flex; align-items: center; gap: 16px; }
-  .live-badge {
-    background: rgba(34,197,94,.15);
-    border: 1px solid rgba(34,197,94,.3);
-    color: var(--up);
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    font-family: var(--mono);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .live-dot { width: 6px; height: 6px; background: var(--up); border-radius: 50%; animation: pulse 1s infinite; }
-  .update-time { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-
-  /* Layout */
-  .container { max-width: 1280px; margin: 0 auto; padding: 20px 24px; }
-  .grid-main { display: grid; grid-template-columns: 340px 1fr; gap: 20px; }
-  @media (max-width: 900px) { .grid-main { grid-template-columns: 1fr; } }
-
-  /* Card */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-  }
-  .card-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  /* KOSPI Index Hero */
-  .index-hero {
-    background: linear-gradient(135deg, #111827 0%, #1a2235 100%);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 20px;
-  }
-  .index-label { font-size: 12px; color: var(--muted); font-weight: 500; letter-spacing: 1px; }
-  .index-value {
-    font-family: var(--mono);
-    font-size: 42px;
-    font-weight: 600;
-    letter-spacing: -1px;
-    margin: 6px 0 4px;
-  }
-  .index-change {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-family: var(--mono);
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .index-meta {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-  }
-  .meta-item .label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-  .meta-item .val { font-family: var(--mono); font-size: 13px; font-weight: 600; }
-
-  /* Search */
-  .search-wrap { position: relative; margin-bottom: 16px; }
-  .search-input {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    padding: 10px 14px 10px 38px;
-    font-family: var(--sans);
-    font-size: 13px;
-    outline: none;
-    transition: border-color .2s;
-  }
-  .search-input:focus { border-color: var(--accent); }
-  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
-  .search-results {
-    position: absolute;
-    top: 100%;
-    left: 0; right: 0;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    z-index: 50;
-    max-height: 220px;
-    overflow-y: auto;
-    display: none;
-  }
-  .search-results.show { display: block; }
-  .search-item {
-    padding: 10px 14px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-    transition: background .15s;
-  }
-  .search-item:last-child { border-bottom: none; }
-  .search-item:hover { background: var(--card); }
-  .search-item .sname { font-size: 13px; font-weight: 500; }
-  .search-item .scode { font-size: 11px; color: var(--muted); font-family: var(--mono); }
-
-  /* Stock List */
-  .stock-list { display: flex; flex-direction: column; gap: 6px; max-height: 360px; overflow-y: auto; }
-  .stock-list::-webkit-scrollbar { width: 4px; }
-  .stock-list::-webkit-scrollbar-track { background: transparent; }
-  .stock-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-  .stock-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: all .15s;
-  }
-  .stock-row:hover { background: rgba(59,130,246,.08); border-color: rgba(59,130,246,.2); }
-  .stock-row.active { background: rgba(59,130,246,.12); border-color: rgba(59,130,246,.4); }
-  .stock-row .sname { font-size: 13px; font-weight: 500; }
-  .stock-row .scode { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
-  .stock-row .price-wrap { text-align: right; }
-  .stock-row .sprice { font-family: var(--mono); font-size: 13px; font-weight: 600; }
-  .stock-row .schange { font-family: var(--mono); font-size: 11px; }
-  .up { color: var(--up); }
-  .down { color: var(--down); }
-
-  /* Chart Area */
-  .chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-  .chart-stock-name { font-size: 20px; font-weight: 700; }
-  .chart-stock-code { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
-  .chart-price { font-family: var(--mono); font-size: 28px; font-weight: 600; }
-  .chart-change { font-family: var(--mono); font-size: 14px; margin-top: 4px; }
-
-  .range-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
-  .range-tab {
-    padding: 5px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    font-size: 12px;
-    font-family: var(--sans);
-    cursor: pointer;
-    transition: all .15s;
-    font-weight: 500;
-  }
-  .range-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .range-tab:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
-
-  .chart-wrap { position: relative; height: 240px; }
-
-  /* Prediction Section */
-  .pred-section { margin-top: 20px; }
-  .pred-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-  .pred-card {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-  }
-  .pred-day { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
-  .pred-val { font-family: var(--mono); font-size: 16px; font-weight: 600; }
-  .pred-diff { font-family: var(--mono); font-size: 11px; margin-top: 3px; }
-  .pred-bar-wrap { margin-top: 8px; height: 3px; background: var(--border); border-radius: 2px; }
-  .pred-bar { height: 100%; border-radius: 2px; transition: width .6s ease; }
-
-  /* AI Button */
-  .btn-predict {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity .2s, transform .1s;
-  }
-  .btn-predict:hover { opacity: .85; }
-  .btn-predict:active { transform: scale(.97); }
-  .btn-predict:disabled { opacity: .5; cursor: not-allowed; }
-
-  /* AI Analysis Box */
-  .ai-box {
-    background: var(--bg);
-    border: 1px solid rgba(59,130,246,.3);
-    border-radius: 10px;
-    padding: 16px;
-    margin-top: 14px;
-    font-size: 13px;
-    line-height: 1.7;
-    color: #cbd5e1;
-    display: none;
-  }
-  .ai-box.show { display: block; }
-  .ai-box strong { color: var(--text); }
-  .ai-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    color: #a78bfa;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-  }
-
-  /* Gemini API Key Input */
-  .apikey-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-  }
-  .apikey-input {
-    flex: 1;
-    min-width: 200px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    padding: 8px 12px;
-    font-family: var(--mono);
-    font-size: 12px;
-    outline: none;
-    transition: border-color .2s;
-  }
-  .apikey-input:focus { border-color: #a78bfa; }
-  .apikey-label {
-    font-size: 11px;
-    color: var(--muted);
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .gemini-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: linear-gradient(135deg, rgba(167,139,250,.15), rgba(99,102,241,.15));
-    border: 1px solid rgba(167,139,250,.3);
-    color: #a78bfa;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .5px;
-  }
-
-  .typing::after {
-    content: '▋';
-    animation: blink .6s infinite;
-  }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-  /* Loading */
-  .skeleton {
-    background: linear-gradient(90deg, var(--border) 25%, var(--card) 50%, var(--border) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite;
-    border-radius: 4px;
-  }
-  @keyframes shimmer { 0%{background-position:200%} 100%{background-position:-200%} }
-
-  .error-msg {
-    color: var(--down);
-    font-size: 12px;
-    padding: 8px 12px;
-    background: rgba(239,68,68,.1);
-    border-radius: 6px;
-    border: 1px solid rgba(239,68,68,.2);
-  }
-
-  /* Market status */
-  .market-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-weight: 600;
-  }
-  .market-open { background: rgba(34,197,94,.15); color: var(--up); border: 1px solid rgba(34,197,94,.3); }
-  .market-closed { background: rgba(100,116,139,.15); color: var(--muted); border: 1px solid rgba(100,116,139,.3); }
+:root{--bg:#0a0e1a;--surface:#111827;--card:#1a2235;--border:#1e2d45;--accent:#3b82f6;--up:#22c55e;--down:#ef4444;--text:#e2e8f0;--muted:#64748b;--mono:'JetBrains Mono',monospace;--sans:'Noto Sans KR',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700}
+.logo-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.live-badge{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--up);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:var(--mono);display:flex;align-items:center;gap:5px}
+.live-dot{width:6px;height:6px;background:var(--up);border-radius:50%;animation:pulse 1s infinite}
+.update-time{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.container{max-width:1280px;margin:0 auto;padding:20px 24px}
+.grid-main{display:grid;grid-template-columns:320px 1fr;gap:20px}
+@media(max-width:860px){.grid-main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.index-hero{background:linear-gradient(135deg,#111827,#1a2235);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.index-label{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:1px}
+.index-value{font-family:var(--mono);font-size:40px;font-weight:600;letter-spacing:-1px;margin:6px 0 4px}
+.index-change{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:15px;font-weight:600}
+.index-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+.meta-item .label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.meta-item .val{font-family:var(--mono);font-size:13px;font-weight:600}
+.search-wrap{position:relative;margin-bottom:14px}
+.search-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 12px 9px 36px;font-family:var(--sans);font-size:13px;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--accent)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px}
+.search-results{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:50;max-height:220px;overflow-y:auto;display:none}
+.search-results.show{display:block}
+.search-item{padding:9px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);transition:background .15s}
+.search-item:last-child{border-bottom:none}
+.search-item:hover{background:var(--card)}
+.search-item .sname{font-size:13px;font-weight:500}
+.search-item .scode{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.stock-list{display:flex;flex-direction:column;gap:5px;max-height:380px;overflow-y:auto}
+.stock-list::-webkit-scrollbar{width:3px}
+.stock-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.stock-row{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.stock-row:hover{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.2)}
+.stock-row.active{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.4)}
+.stock-row .sname{font-size:13px;font-weight:500}
+.stock-row .scode{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.stock-row .price-wrap{text-align:right}
+.stock-row .sprice{font-family:var(--mono);font-size:13px;font-weight:600}
+.stock-row .schange{font-family:var(--mono);font-size:11px}
+.up{color:var(--up)}.down{color:var(--down)}
+.chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.chart-stock-name{font-size:19px;font-weight:700}
+.chart-stock-code{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.chart-price{font-family:var(--mono);font-size:26px;font-weight:600}
+.chart-change{font-family:var(--mono);font-size:13px;margin-top:4px}
+.range-tabs{display:flex;gap:4px;margin-bottom:14px}
+.range-tab{padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-family:var(--sans);cursor:pointer;transition:all .15s;font-weight:500}
+.range-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.range-tab:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+.chart-wrap{position:relative;height:230px}
+.pred-section{margin-top:20px}
+.pred-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.pred-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px}
+.pred-day{font-size:10px;color:var(--muted);margin-bottom:5px}
+.pred-val{font-family:var(--mono);font-size:15px;font-weight:600}
+.pred-diff{font-family:var(--mono);font-size:10px;margin-top:3px}
+.pred-bar-wrap{margin-top:7px;height:3px;background:var(--border);border-radius:2px}
+.pred-bar{height:100%;border-radius:2px;transition:width .6s ease}
+.apikey-wrap{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.apikey-input{flex:1;min-width:180px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 11px;font-family:var(--mono);font-size:12px;outline:none;transition:border-color .2s}
+.apikey-input:focus{border-color:#a78bfa}
+.apikey-label{font-size:11px;color:var(--muted);white-space:nowrap}
+.gemini-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,rgba(167,139,250,.15),rgba(99,102,241,.15));border:1px solid rgba(167,139,250,.3);color:#a78bfa;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px}
+.btn-predict{display:flex;align-items:center;gap:7px;padding:9px 18px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border:none;border-radius:8px;color:#fff;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:opacity .2s,transform .1s;white-space:nowrap}
+.btn-predict:hover{opacity:.85}
+.btn-predict:active{transform:scale(.97)}
+.btn-predict:disabled{opacity:.5;cursor:not-allowed}
+.ai-box{background:var(--bg);border:1px solid rgba(167,139,250,.3);border-radius:10px;padding:16px;margin-top:12px;font-size:13px;line-height:1.75;color:#cbd5e1;display:none;white-space:pre-wrap}
+.ai-box.show{display:block}
+.ai-label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.typing::after{content:'▋';animation:blink .6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.skeleton{background:linear-gradient(90deg,var(--border) 25%,var(--card) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:4px}
+@keyframes shimmer{0%{background-position:200%}100%{background-position:-200%}}
+.market-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.market-open{background:rgba(34,197,94,.15);color:var(--up);border:1px solid rgba(34,197,94,.3)}
+.market-closed{background:rgba(100,116,139,.15);color:var(--muted);border:1px solid rgba(100,116,139,.3)}
+.status-bar{font-size:11px;color:var(--muted);padding:6px 0;font-family:var(--mono)}
+.header-right{display:flex;align-items:center;gap:14px}
 </style>
 </head>
 <body>
-
 <div class="header">
-  <div class="logo">
-    <div class="logo-dot"></div>
-    KOSPI 주가 예측
-  </div>
+  <div class="logo"><div class="logo-dot"></div>KOSPI 주가 예측</div>
   <div class="header-right">
     <span class="live-badge"><span class="live-dot"></span>LIVE</span>
     <span class="update-time" id="updateTime">--:--:--</span>
@@ -378,10 +103,9 @@
 </div>
 
 <div class="container">
-  <!-- KOSPI Index Hero -->
   <div class="index-hero">
     <div class="index-label">KOSPI 종합지수 (^KS11)</div>
-    <div id="kospiVal" class="index-value skeleton" style="height:50px;width:220px;margin:8px 0;">　</div>
+    <div id="kospiVal" class="index-value skeleton" style="height:48px;width:200px;margin:8px 0"> </div>
     <div id="kospiChange" class="index-change">--</div>
     <div class="index-meta">
       <div class="meta-item"><div class="label">시가</div><div class="val" id="kospiOpen">--</div></div>
@@ -391,26 +115,20 @@
   </div>
 
   <div class="grid-main">
-    <!-- Left: Stock List -->
     <div>
       <div class="card">
-        <div class="card-title">
-          종목 검색
-          <span id="marketStatus" class="market-status market-closed">● 장 마감</span>
-        </div>
+        <div class="card-title">종목 검색 <span id="marketStatus" class="market-status market-closed">● 장 마감</span></div>
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
           <input class="search-input" id="searchInput" type="text" placeholder="종목명 또는 코드 검색...">
           <div class="search-results" id="searchResults"></div>
         </div>
-        <div class="card-title" style="margin-top:16px;">주요 종목</div>
-        <div class="stock-list" id="stockList">
-          <div style="color:var(--muted);font-size:12px;padding:12px;text-align:center;">데이터 로딩 중...</div>
-        </div>
+        <div class="card-title" style="margin-top:14px">주요 종목</div>
+        <div class="stock-list" id="stockList"><div style="color:var(--muted);font-size:12px;padding:12px;text-align:center">데이터 로딩 중...</div></div>
+        <div class="status-bar" id="statusBar"></div>
       </div>
     </div>
 
-    <!-- Right: Chart + Prediction -->
     <div>
       <div class="card">
         <div class="chart-header">
@@ -418,37 +136,27 @@
             <div class="chart-stock-name" id="chartName">삼성전자</div>
             <div class="chart-stock-code" id="chartCode">005930.KS</div>
           </div>
-          <div style="text-align:right;">
+          <div style="text-align:right">
             <div class="chart-price" id="chartPrice">--</div>
             <div class="chart-change" id="chartChange">--</div>
           </div>
         </div>
-
         <div class="range-tabs" id="rangeTabs">
           <button class="range-tab active" data-range="1D">1일</button>
           <button class="range-tab" data-range="1W">1주</button>
           <button class="range-tab" data-range="1M">1개월</button>
           <button class="range-tab" data-range="3M">3개월</button>
         </div>
+        <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
 
-        <div class="chart-wrap">
-          <canvas id="priceChart"></canvas>
-        </div>
-
-        <!-- Prediction -->
         <div class="pred-section">
-          <div class="card-title" style="margin-bottom:12px;">
-            AI 주가 예측
-            <span class="gemini-badge">✦ Gemini</span>
-          </div>
+          <div class="card-title" style="margin-bottom:10px">AI 주가 예측 <span class="gemini-badge">✦ Gemini</span></div>
           <div class="apikey-wrap">
             <span class="apikey-label">🔑 Gemini API Key</span>
-            <input class="apikey-input" id="geminiKey" type="password" placeholder="AIza... (Google AI Studio에서 발급)">
-            <button class="btn-predict" id="btnPredict">
-              <span>✦</span> 예측 실행
-            </button>
+            <input class="apikey-input" id="geminiKey" type="password" placeholder="AIza... (Google AI Studio 무료 발급)">
+            <button class="btn-predict" id="btnPredict"><span>✦</span> 예측 실행</button>
           </div>
-          <div id="predGrid" class="pred-grid" style="display:none;"></div>
+          <div id="predGrid" class="pred-grid" style="display:none"></div>
           <div class="ai-box" id="aiBox">
             <div class="ai-label">✦ Gemini AI 분석</div>
             <div id="aiText"></div>
@@ -460,494 +168,360 @@
 </div>
 
 <script>
-// ========== CONFIG ==========
-const CORS_PROXY = 'https://corsproxy.io/?';
-// Gemini API key is read from input at runtime
-
-// Popular Korean stocks (Yahoo Finance .KS / .KQ symbols)
-const POPULAR_STOCKS = [
-  { name: '삼성전자', code: '005930.KS', short: '005930' },
-  { name: 'SK하이닉스', code: '000660.KS', short: '000660' },
-  { name: 'LG에너지솔루션', code: '373220.KS', short: '373220' },
-  { name: '삼성바이오로직스', code: '207940.KS', short: '207940' },
-  { name: '현대차', code: '005380.KS', short: '005380' },
-  { name: 'NAVER', code: '035420.KS', short: '035420' },
-  { name: '카카오', code: '035720.KS', short: '035720' },
-  { name: '기아', code: '000270.KS', short: '000270' },
-  { name: 'POSCO홀딩스', code: '005490.KS', short: '005490' },
-  { name: 'LG화학', code: '051910.KS', short: '051910' },
-  { name: '셀트리온', code: '068270.KS', short: '068270' },
-  { name: 'KB금융', code: '105560.KS', short: '105560' },
-  { name: '신한지주', code: '055550.KS', short: '055550' },
-  { name: '삼성SDI', code: '006400.KS', short: '006400' },
-  { name: '현대모비스', code: '012330.KS', short: '012330' },
+// ===== PROXIES (순서대로 시도) =====
+const PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
 ];
 
+async function fetchWithProxy(targetUrl) {
+  for (const makeProxy of PROXIES) {
+    try {
+      const proxyUrl = makeProxy(targetUrl);
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) continue;
+      const text = await res.text();
+      if (!text || text.trim() === '') continue;
+      return JSON.parse(text);
+    } catch(e) { continue; }
+  }
+  throw new Error('모든 프록시 실패');
+}
+
+// ===== 종목 목록 =====
+const POPULAR_STOCKS = [
+  {name:'삼성전자',code:'005930.KS',short:'005930'},
+  {name:'SK하이닉스',code:'000660.KS',short:'000660'},
+  {name:'LG에너지솔루션',code:'373220.KS',short:'373220'},
+  {name:'삼성바이오로직스',code:'207940.KS',short:'207940'},
+  {name:'현대차',code:'005380.KS',short:'005380'},
+  {name:'NAVER',code:'035420.KS',short:'035420'},
+  {name:'카카오',code:'035720.KS',short:'035720'},
+  {name:'기아',code:'000270.KS',short:'000270'},
+  {name:'POSCO홀딩스',code:'005490.KS',short:'005490'},
+  {name:'LG화학',code:'051910.KS',short:'051910'},
+  {name:'셀트리온',code:'068270.KS',short:'068270'},
+  {name:'KB금융',code:'105560.KS',short:'105560'},
+  {name:'신한지주',code:'055550.KS',short:'055550'},
+  {name:'삼성SDI',code:'006400.KS',short:'006400'},
+  {name:'현대모비스',code:'012330.KS',short:'012330'},
+];
 const SEARCH_LIST = [
   ...POPULAR_STOCKS,
-  { name: '두산에너빌리티', code: '034020.KS' },
-  { name: 'LG전자', code: '066570.KS' },
-  { name: '한국전력', code: '015760.KS' },
-  { name: 'KT', code: '030200.KS' },
-  { name: 'SK텔레콤', code: '017670.KS' },
-  { name: '롯데케미칼', code: '011170.KS' },
-  { name: 'GS칼텍스', code: '078930.KS' },
-  { name: '카카오뱅크', code: '323410.KS' },
-  { name: '크래프톤', code: '259960.KS' },
-  { name: '에코프로', code: '086520.KQ' },
-  { name: '에코프로비엠', code: '247540.KQ' },
+  {name:'두산에너빌리티',code:'034020.KS'},
+  {name:'LG전자',code:'066570.KS'},
+  {name:'한국전력',code:'015760.KS'},
+  {name:'KT',code:'030200.KS'},
+  {name:'SK텔레콤',code:'017670.KS'},
+  {name:'카카오뱅크',code:'323410.KS'},
+  {name:'크래프톤',code:'259960.KS'},
+  {name:'에코프로',code:'086520.KQ'},
+  {name:'에코프로비엠',code:'247540.KQ'},
 ];
 
-// ========== STATE ==========
-let state = {
-  selectedStock: POPULAR_STOCKS[0],
-  stockData: {},
-  chart: null,
-  currentRange: '1D',
-};
+let state = {selected: POPULAR_STOCKS[0], stockData:{}, chart:null, range:'1D'};
 
-// ========== UTILS ==========
-function fmt(n, d=0) { return n != null ? n.toLocaleString('ko-KR', {minimumFractionDigits:d,maximumFractionDigits:d}) : '--'; }
-function fmtPct(n) { return n != null ? (n>0?'+':'')+n.toFixed(2)+'%' : '--'; }
-function fmtSign(n) { return n != null ? (n>0?'+':'')+fmt(n) : '--'; }
-function colorClass(n) { return n>0?'up':n<0?'down':''; }
-function now() { return new Date().toLocaleTimeString('ko-KR'); }
+// ===== 유틸 =====
+const fmt = (n,d=0) => n!=null ? n.toLocaleString('ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d}) : '--';
+const fmtPct = n => n!=null ? (n>0?'+':'')+n.toFixed(2)+'%' : '--';
+const fmtSign = n => n!=null ? (n>0?'+':'')+fmt(n) : '--';
+const cc = n => n>0?'up':n<0?'down':'';
+const nowStr = () => new Date().toLocaleTimeString('ko-KR');
+const setStatus = msg => { const el=document.getElementById('statusBar'); if(el) el.textContent=msg; };
 
-// ========== YAHOO FINANCE API ==========
-async function fetchQuote(symbol) {
-  try {
-    const url = `${CORS_PROXY}https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1m&range=1d`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
-    const meta = data.chart.result[0].meta;
-    const timestamps = data.chart.result[0].timestamp || [];
-    const closes = data.chart.result[0].indicators.quote[0].close || [];
-    return { meta, timestamps, closes };
-  } catch(e) {
-    console.error('fetchQuote error:', e);
-    return null;
-  }
+// ===== Yahoo Finance fetch =====
+async function fetchChart(symbol, interval, range) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=${interval}&range=${range}`;
+  const data = await fetchWithProxy(url);
+  const result = data.chart.result[0];
+  return {
+    meta: result.meta,
+    timestamps: result.timestamp || [],
+    closes: result.indicators.quote[0].close || [],
+    opens:  result.indicators.quote[0].open  || [],
+    highs:  result.indicators.quote[0].high  || [],
+    lows:   result.indicators.quote[0].low   || [],
+  };
 }
 
-async function fetchHistory(symbol, range) {
-  const rangeMap = { '1D':'1d', '1W':'5d', '1M':'1mo', '3M':'3mo' };
-  const intervalMap = { '1D':'5m', '1W':'30m', '1M':'1d', '3M':'1d' };
-  try {
-    const url = `${CORS_PROXY}https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=${intervalMap[range]}&range=${rangeMap[range]}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
-    const result = data.chart.result[0];
-    const timestamps = result.timestamp || [];
-    const closes = result.indicators.quote[0].close || [];
-    const opens = result.indicators.quote[0].open || [];
-    const highs = result.indicators.quote[0].high || [];
-    const lows = result.indicators.quote[0].low || [];
-    return { timestamps, closes, opens, highs, lows, meta: result.meta };
-  } catch(e) {
-    console.error('fetchHistory error:', e);
-    return null;
-  }
-}
-
-// ========== KOSPI INDEX ==========
+// ===== KOSPI 지수 =====
 async function updateKospi() {
-  const data = await fetchQuote('^KS11');
-  if (!data) return;
-  const m = data.meta;
-  const price = m.regularMarketPrice;
-  const prev = m.chartPreviousClose || m.previousClose;
-  const change = price - prev;
-  const pct = (change/prev)*100;
+  try {
+    setStatus('지수 불러오는 중...');
+    const d = await fetchChart('^KS11','1m','1d');
+    const m = d.meta;
+    const price = m.regularMarketPrice;
+    const prev  = m.chartPreviousClose || m.previousClose;
+    const chg   = price - prev;
+    const pct   = (chg/prev)*100;
 
-  const el = document.getElementById('kospiVal');
-  el.className = 'index-value '+(change>=0?'up':'down');
-  el.textContent = fmt(price, 2);
+    const el = document.getElementById('kospiVal');
+    el.className = 'index-value '+(chg>=0?'up':'down');
+    el.textContent = fmt(price,2);
+    document.getElementById('kospiChange').innerHTML =
+      `<span class="${cc(chg)}">${fmtSign(chg)}</span><span class="${cc(pct)}">${fmtPct(pct)}</span>`;
+    document.getElementById('kospiOpen').textContent = fmt(m.regularMarketOpen||m.open,2);
+    document.getElementById('kospiHigh').textContent = fmt(m.regularMarketDayHigh||m.dayHigh,2);
+    document.getElementById('kospiLow').textContent  = fmt(m.regularMarketDayLow||m.dayLow,2);
 
-  document.getElementById('kospiChange').innerHTML =
-    `<span class="${colorClass(change)}">${fmtSign(change)}</span>
-     <span class="${colorClass(pct)}">${fmtPct(pct)}</span>`;
-  document.getElementById('kospiOpen').textContent = fmt(m.regularMarketOpen||m.open, 2);
-  document.getElementById('kospiHigh').textContent = fmt(m.regularMarketDayHigh||m.dayHigh, 2);
-  document.getElementById('kospiLow').textContent = fmt(m.regularMarketDayLow||m.dayLow, 2);
-
-  // Market status
-  const kst = new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'});
-  const h = new Date(kst).getHours();
-  const isOpen = h >= 9 && h < 15.5;
-  const ms = document.getElementById('marketStatus');
-  if (isOpen) {
-    ms.className = 'market-status market-open';
-    ms.textContent = '● 장 중';
-  } else {
-    ms.className = 'market-status market-closed';
-    ms.textContent = '● 장 마감';
+    const kstH = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'})).getHours();
+    const ms = document.getElementById('marketStatus');
+    if(kstH>=9 && kstH<15){ ms.className='market-status market-open'; ms.textContent='● 장 중'; }
+    else { ms.className='market-status market-closed'; ms.textContent='● 장 마감'; }
+    document.getElementById('updateTime').textContent = nowStr();
+    setStatus('✓ 업데이트 완료');
+  } catch(e) {
+    setStatus('⚠ 지수 로드 실패: '+e.message);
+    document.getElementById('kospiVal').className='index-value';
+    document.getElementById('kospiVal').textContent='오류';
   }
 }
 
-// ========== STOCK LIST ==========
+// ===== 종목 리스트 =====
 async function loadStockList() {
   const list = document.getElementById('stockList');
   list.innerHTML = '';
   for (const s of POPULAR_STOCKS.slice(0,12)) {
     const row = document.createElement('div');
-    row.className = 'stock-row' + (s.code === state.selectedStock.code ? ' active' : '');
+    row.className = 'stock-row'+(s.code===state.selected.code?' active':'');
     row.dataset.code = s.code;
+    const id = s.code.replace(/\./g,'_');
     row.innerHTML = `<div><div class="sname">${s.name}</div><div class="scode">${s.short||s.code}</div></div>
-      <div class="price-wrap"><div class="sprice" id="sp_${s.code.replace('.','_')}">--</div><div class="schange" id="sc_${s.code.replace('.','_')}">--</div></div>`;
+      <div class="price-wrap"><div class="sprice" id="sp_${id}">--</div><div class="schange" id="sc_${id}">--</div></div>`;
     row.addEventListener('click', () => selectStock(s));
     list.appendChild(row);
-    // Fetch price async
-    fetchQuote(s.code).then(d => {
-      if (!d) return;
-      const m = d.meta;
-      const price = m.regularMarketPrice;
-      const prev = m.chartPreviousClose || m.previousClose;
-      const change = price - prev;
-      const pct = (change/prev)*100;
-      const id = s.code.replace('.','_');
-      const pel = document.getElementById('sp_'+id);
-      const cel = document.getElementById('sc_'+id);
-      if (pel) { pel.textContent = fmt(price); pel.className = 'sprice '+colorClass(change); }
-      if (cel) { cel.textContent = fmtPct(pct); cel.className = 'schange '+colorClass(pct); }
-    });
+    // 비동기 가격 로드
+    fetchChart(s.code,'1m','1d').then(d=>{
+      const m=d.meta, price=m.regularMarketPrice, prev=m.chartPreviousClose||m.previousClose;
+      const chg=price-prev, pct=(chg/prev)*100;
+      const pe=document.getElementById('sp_'+id), ce=document.getElementById('sc_'+id);
+      if(pe){pe.textContent=fmt(price);pe.className='sprice '+cc(chg);}
+      if(ce){ce.textContent=fmtPct(pct);ce.className='schange '+cc(pct);}
+    }).catch(()=>{});
   }
 }
 
-// ========== SELECT STOCK ==========
+// ===== 종목 선택 =====
 async function selectStock(stock) {
-  state.selectedStock = stock;
-  document.querySelectorAll('.stock-row').forEach(r => {
-    r.classList.toggle('active', r.dataset.code === stock.code);
-  });
+  state.selected = stock;
+  document.querySelectorAll('.stock-row').forEach(r=>r.classList.toggle('active',r.dataset.code===stock.code));
   document.getElementById('chartName').textContent = stock.name;
   document.getElementById('chartCode').textContent = stock.code;
   document.getElementById('chartPrice').textContent = '--';
   document.getElementById('chartChange').textContent = '--';
-  document.getElementById('predGrid').style.display = 'none';
+  document.getElementById('predGrid').style.display='none';
   document.getElementById('aiBox').classList.remove('show');
-  await loadChart(stock.code, state.currentRange);
+  await loadChart(stock.code, state.range);
 }
 
-// ========== CHART ==========
+// ===== 차트 =====
 async function loadChart(symbol, range) {
-  const data = await fetchHistory(symbol, range);
-  if (!data) {
-    document.getElementById('chartPrice').textContent = '오류';
-    return;
-  }
-
-  const m = data.meta;
-  const price = m.regularMarketPrice;
-  const prev = m.chartPreviousClose || m.previousClose;
-  const change = price - prev;
-  const pct = (change/prev)*100;
-
-  document.getElementById('chartPrice').textContent = fmt(price);
-  document.getElementById('chartPrice').className = 'chart-price '+colorClass(change);
-  document.getElementById('chartChange').innerHTML =
-    `<span class="${colorClass(change)}">${fmtSign(change)} (${fmtPct(pct)})</span>`;
-
-  // Build chart data
-  const labels = data.timestamps.map(t => {
-    const d = new Date(t * 1000);
-    if (range === '1D') return d.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
-    return d.toLocaleDateString('ko-KR', {month:'short', day:'numeric'});
-  });
-  const closes = data.closes.map(v => v ? parseFloat(v.toFixed(2)) : null);
-
-  // Store for prediction
-  state.stockData[symbol] = { labels, closes, meta: m, range };
-
-  // Color
-  const isUp = closes[closes.length-1] >= closes[0];
-  const lineColor = isUp ? '#22c55e' : '#ef4444';
-  const fillColor = isUp ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)';
-
-  if (state.chart) { state.chart.destroy(); }
-  const ctx = document.getElementById('priceChart').getContext('2d');
-  state.chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        data: closes,
-        borderColor: lineColor,
-        backgroundColor: fillColor,
-        borderWidth: 2,
-        fill: true,
-        tension: 0.3,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        pointHoverBackgroundColor: lineColor,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          mode: 'index',
-          intersect: false,
-          backgroundColor: '#1a2235',
-          titleColor: '#64748b',
-          bodyColor: '#e2e8f0',
-          borderColor: '#1e2d45',
-          borderWidth: 1,
-          callbacks: {
-            label: ctx => `₩${fmt(ctx.raw)}`,
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { color: '#64748b', font: { size: 10, family: 'JetBrains Mono' }, maxTicksLimit: 6 },
-          grid: { color: 'rgba(30,45,69,0.5)' },
-        },
-        y: {
-          ticks: { color: '#64748b', font: { size: 10, family: 'JetBrains Mono' }, callback: v => '₩'+fmt(v) },
-          grid: { color: 'rgba(30,45,69,0.5)' },
-          position: 'right',
-        }
-      },
-      interaction: { mode: 'index', intersect: false }
-    }
-  });
-}
-
-// ========== PREDICTION ==========
-async function runPrediction() {
-  const btn = document.getElementById('btnPredict');
-  btn.disabled = true;
-  btn.innerHTML = '<span>⏳</span> 분석 중...';
-
-  const stock = state.selectedStock;
-  const d = state.stockData[stock.code];
-  if (!d) {
-    btn.disabled = false;
-    btn.innerHTML = '<span>🤖</span> 예측 실행';
-    return;
-  }
-
-  const closes = d.closes.filter(Boolean);
-  const last = closes.slice(-20);
-  const currentPrice = d.meta.regularMarketPrice;
-  const prev = d.meta.chartPreviousClose || d.meta.previousClose;
-  const change = currentPrice - prev;
-  const pct = (change/prev)*100;
-
-  // Simple statistical model for quick prediction
-  const predictions = generatePredictions(closes, currentPrice);
-  displayPredictions(predictions, currentPrice);
-
-  // Gemini AI analysis
-  const geminiKey = document.getElementById('geminiKey').value.trim();
-  const aiBox = document.getElementById('aiBox');
-  const aiText = document.getElementById('aiText');
-  aiBox.classList.add('show');
-  aiText.className = 'typing';
-  aiText.textContent = '';
-
-  if (!geminiKey) {
-    aiText.className = '';
-    aiText.innerHTML = '⚠️ <strong>Gemini API Key를 입력해주세요.</strong><br><small style="color:var(--muted)">👉 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#a78bfa;">Google AI Studio</a>에서 무료로 발급받을 수 있습니다.</small>';
-    btn.disabled = false;
-    btn.innerHTML = '<span>✦</span> 예측 실행';
-    return;
-  }
-
-  const prompt = `당신은 한국 주식 시장 전문 애널리스트입니다. 다음 데이터를 분석하여 한국어로 간결하고 전문적인 주가 분석을 제공하세요.
-
-종목: ${stock.name} (${stock.code})
-현재가: ₩${fmt(currentPrice)}
-전일 대비: ${fmtSign(change)} (${fmtPct(pct)})
-최근 20개 봉 종가 데이터: ${last.map(v=>Math.round(v)).join(', ')}
-통계 모델 예측 1일 후: ₩${fmt(predictions[0].price)} (${fmtPct(predictions[0].pct)})
-통계 모델 예측 1주일 후: ₩${fmt(predictions[6].price)} (${fmtPct(predictions[6].pct)})
-
-아래 형식으로 분석해주세요 (총 400자 이내):
-📊 현재 추세: (EMA, 모멘텀 기반 2줄)
-🔭 단기 전망: (1~7일 전망 2줄)
-⚡ 투자 포인트: (핵심 한 줄)
-
-⚠️ 본 분석은 참고용이며, 투자 책임은 본인에게 있습니다.`;
-
+  const rangeMap  = {'1D':'1d','1W':'5d','1M':'1mo','3M':'3mo'};
+  const intMap    = {'1D':'5m','1W':'30m','1M':'1d','3M':'1d'};
+  setStatus('차트 데이터 불러오는 중...');
   try {
-    const response = await fetch(
-      \`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=\${geminiKey}\`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 600, temperature: 0.4 }
-        })
-      }
-    );
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || 'API 오류');
-    }
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '분석을 가져올 수 없습니다.';
-    aiText.className = '';
-    // Typewriter effect
-    let i = 0;
-    aiText.textContent = '';
-    const interval = setInterval(() => {
-      aiText.textContent += text[i];
-      i++;
-      if (i >= text.length) clearInterval(interval);
-    }, 16);
-  } catch(e) {
-    aiText.className = '';
-    aiText.innerHTML = \`⚠️ Gemini API 오류: \${e.message}<br><small style="color:var(--muted)">API Key를 확인하거나 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#a78bfa;">재발급</a>해보세요.</small>\`;
-  }
+    const d = await fetchChart(symbol, intMap[range], rangeMap[range]);
+    const m = d.meta;
+    const price = m.regularMarketPrice;
+    const prev  = m.chartPreviousClose || m.previousClose;
+    const chg   = price - prev;
+    const pct   = (chg/prev)*100;
 
-  btn.disabled = false;
-  btn.innerHTML = '<span>✦</span> 다시 예측';
+    document.getElementById('chartPrice').textContent = fmt(price);
+    document.getElementById('chartPrice').className = 'chart-price '+cc(chg);
+    document.getElementById('chartChange').innerHTML = `<span class="${cc(chg)}">${fmtSign(chg)} (${fmtPct(pct)})</span>`;
+
+    const labels = d.timestamps.map(t=>{
+      const dt=new Date(t*1000);
+      return range==='1D'
+        ? dt.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})
+        : dt.toLocaleDateString('ko-KR',{month:'short',day:'numeric'});
+    });
+    const closes = d.closes.map(v=>v?parseFloat(v.toFixed(2)):null);
+    state.stockData[symbol] = {labels, closes, meta:m, range};
+
+    const isUp = (closes.filter(Boolean).slice(-1)[0]||0) >= (closes.filter(Boolean)[0]||0);
+    const lineColor = isUp?'#22c55e':'#ef4444';
+    const fillColor = isUp?'rgba(34,197,94,0.08)':'rgba(239,68,68,0.08)';
+
+    if(state.chart) state.chart.destroy();
+    state.chart = new Chart(document.getElementById('priceChart').getContext('2d'),{
+      type:'line',
+      data:{labels,datasets:[{data:closes,borderColor:lineColor,backgroundColor:fillColor,borderWidth:2,fill:true,tension:0.3,pointRadius:0,pointHoverRadius:4,pointHoverBackgroundColor:lineColor}]},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'#1a2235',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#1e2d45',borderWidth:1,callbacks:{label:ctx=>`₩${fmt(ctx.raw)}`}}},
+        scales:{
+          x:{ticks:{color:'#64748b',font:{size:10,family:'JetBrains Mono'},maxTicksLimit:6},grid:{color:'rgba(30,45,69,0.5)'}},
+          y:{ticks:{color:'#64748b',font:{size:10,family:'JetBrains Mono'},callback:v=>'₩'+fmt(v)},grid:{color:'rgba(30,45,69,0.5)'},position:'right'}
+        },
+        interaction:{mode:'index',intersect:false}
+      }
+    });
+    setStatus('✓ 차트 로드 완료');
+  } catch(e) {
+    setStatus('⚠ 차트 로드 실패: '+e.message);
+    document.getElementById('chartPrice').textContent='오류';
+  }
 }
 
-// Statistical prediction model (ARIMA-inspired simple approach)
+// ===== 예측 (통계 모델) =====
+function ema(data, period) {
+  const k=2/(period+1), r=[data[0]];
+  for(let i=1;i<data.length;i++) r.push(data[i]*k+r[i-1]*(1-k));
+  return r;
+}
 function generatePredictions(closes, current) {
-  const n = closes.length;
-  const valid = closes.filter(Boolean);
-
-  // Calculate momentum, volatility
-  const returns = [];
-  for (let i = 1; i < valid.length; i++) {
-    returns.push((valid[i] - valid[i-1]) / valid[i-1]);
-  }
-  const avgReturn = returns.reduce((a,b)=>a+b,0) / returns.length;
-  const volatility = Math.sqrt(returns.map(r=>(r-avgReturn)**2).reduce((a,b)=>a+b,0)/returns.length);
-
-  // EMA trend
-  const ema5 = ema(valid, 5);
-  const ema20 = ema(valid, Math.min(20, valid.length));
-  const trend = ema5[ema5.length-1] > ema20[ema20.length-1] ? 1 : -1;
-
-  // Generate 7 days
-  const preds = [];
-  let price = current;
-  for (let day = 1; day <= 7; day++) {
-    const drift = avgReturn * trend * 0.6;
-    const noise = (Math.random() - 0.5) * volatility * Math.sqrt(day) * 0.8;
-    price = price * (1 + drift + noise);
-    preds.push({
-      day,
-      price: Math.round(price),
-      change: price - current,
-      pct: ((price - current) / current) * 100,
-    });
+  const valid=closes.filter(Boolean);
+  const returns=[];
+  for(let i=1;i<valid.length;i++) returns.push((valid[i]-valid[i-1])/valid[i-1]);
+  const avg=returns.reduce((a,b)=>a+b,0)/returns.length;
+  const vol=Math.sqrt(returns.map(r=>(r-avg)**2).reduce((a,b)=>a+b,0)/returns.length);
+  const e5=ema(valid,5), e20=ema(valid,Math.min(20,valid.length));
+  const trend=e5[e5.length-1]>e20[e20.length-1]?1:-1;
+  const preds=[]; let price=current;
+  for(let day=1;day<=7;day++){
+    price=price*(1+avg*trend*0.6+(Math.random()-.5)*vol*Math.sqrt(day)*0.8);
+    preds.push({day,price:Math.round(price),change:price-current,pct:((price-current)/current)*100});
   }
   return preds;
 }
-
-function ema(data, period) {
-  const k = 2 / (period + 1);
-  const result = [data[0]];
-  for (let i = 1; i < data.length; i++) {
-    result.push(data[i] * k + result[i-1] * (1-k));
-  }
-  return result;
-}
-
 function displayPredictions(preds, current) {
-  const grid = document.getElementById('predGrid');
-  grid.style.display = 'grid';
-  grid.innerHTML = '';
-  const days = ['내일','2일 후','3일 후','4일 후','5일 후','6일 후','7일 후'];
-  const maxAbs = Math.max(...preds.map(p=>Math.abs(p.pct)));
-  preds.forEach((p, i) => {
-    const barW = (Math.abs(p.pct) / maxAbs * 100).toFixed(1);
-    const barColor = p.pct >= 0 ? '#22c55e' : '#ef4444';
-    const card = document.createElement('div');
-    card.className = 'pred-card';
-    card.innerHTML = `
-      <div class="pred-day">${days[i]}</div>
-      <div class="pred-val ${colorClass(p.change)}">₩${fmt(p.price)}</div>
-      <div class="pred-diff ${colorClass(p.change)}">${fmtSign(p.change)} (${fmtPct(p.pct)})</div>
-      <div class="pred-bar-wrap"><div class="pred-bar" style="width:${barW}%;background:${barColor}"></div></div>
-    `;
+  const grid=document.getElementById('predGrid');
+  grid.style.display='grid'; grid.innerHTML='';
+  const days=['내일','2일 후','3일 후','4일 후','5일 후','6일 후','7일 후'];
+  const maxAbs=Math.max(...preds.map(p=>Math.abs(p.pct)));
+  preds.forEach((p,i)=>{
+    const barW=(Math.abs(p.pct)/maxAbs*100).toFixed(1);
+    const barColor=p.pct>=0?'#22c55e':'#ef4444';
+    const card=document.createElement('div');
+    card.className='pred-card';
+    card.innerHTML=`<div class="pred-day">${days[i]}</div>
+      <div class="pred-val ${cc(p.change)}">₩${fmt(p.price)}</div>
+      <div class="pred-diff ${cc(p.change)}">${fmtSign(p.change)} (${fmtPct(p.pct)})</div>
+      <div class="pred-bar-wrap"><div class="pred-bar" style="width:${barW}%;background:${barColor}"></div></div>`;
     grid.appendChild(card);
   });
 }
 
-// ========== SEARCH ==========
-const searchInput = document.getElementById('searchInput');
-const searchResults = document.getElementById('searchResults');
+// ===== Gemini 예측 =====
+async function runPrediction() {
+  const btn=document.getElementById('btnPredict');
+  btn.disabled=true; btn.innerHTML='<span>⏳</span> 분석 중...';
 
-searchInput.addEventListener('input', () => {
-  const q = searchInput.value.trim().toLowerCase();
-  if (!q) { searchResults.classList.remove('show'); return; }
-  const matches = SEARCH_LIST.filter(s =>
-    s.name.includes(q) || s.code.toLowerCase().includes(q) || (s.short||'').includes(q)
-  ).slice(0, 8);
-  if (!matches.length) { searchResults.classList.remove('show'); return; }
-  searchResults.innerHTML = matches.map(s =>
-    `<div class="search-item" data-code="${s.code}">
-      <div><div class="sname">${s.name}</div><div class="scode">${s.code}</div></div>
-    </div>`
-  ).join('');
+  const stock=state.selected;
+  const d=state.stockData[stock.code];
+  if(!d){ btn.disabled=false; btn.innerHTML='<span>✦</span> 예측 실행'; return; }
+
+  const closes=d.closes.filter(Boolean);
+  const last=closes.slice(-20);
+  const currentPrice=d.meta.regularMarketPrice;
+  const prev=d.meta.chartPreviousClose||d.meta.previousClose;
+  const chg=currentPrice-prev, pct=(chg/prev)*100;
+  const predictions=generatePredictions(closes, currentPrice);
+  displayPredictions(predictions, currentPrice);
+
+  const geminiKey=document.getElementById('geminiKey').value.trim();
+  const aiBox=document.getElementById('aiBox');
+  const aiText=document.getElementById('aiText');
+  aiBox.classList.add('show');
+  aiText.className='typing';
+  aiText.textContent='';
+
+  if(!geminiKey){
+    aiText.className='';
+    aiText.innerHTML='⚠️ Gemini API Key를 입력해주세요.\n👉 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#a78bfa">Google AI Studio</a>에서 무료 발급 가능합니다.';
+    btn.disabled=false; btn.innerHTML='<span>✦</span> 예측 실행'; return;
+  }
+
+  const prompt=`당신은 한국 주식 시장 전문 애널리스트입니다. 아래 데이터를 바탕으로 한국어로 간결하고 전문적인 주가 분석을 작성하세요.
+
+종목: ${stock.name} (${stock.code})
+현재가: ₩${fmt(currentPrice)}
+전일 대비: ${fmtSign(chg)} (${fmtPct(pct)})
+최근 ${last.length}봉 종가: ${last.map(v=>Math.round(v)).join(', ')}
+통계 예측 1일 후: ₩${fmt(predictions[0].price)} (${fmtPct(predictions[0].pct)})
+통계 예측 7일 후: ₩${fmt(predictions[6].price)} (${fmtPct(predictions[6].pct)})
+
+📊 현재 추세: (2줄)
+🔭 단기 전망: (2줄)
+⚡ 투자 포인트: (1줄)
+
+⚠️ 본 분석은 참고용이며 투자 책임은 투자자 본인에게 있습니다.`;
+
+  try {
+    const res=await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+      {method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:600,temperature:0.4}})}
+    );
+    if(!res.ok){ const err=await res.json(); throw new Error(err.error?.message||'API 오류 '+res.status); }
+    const data=await res.json();
+    const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'분석 결과를 받지 못했습니다.';
+    aiText.className='';
+    let i=0; aiText.textContent='';
+    const iv=setInterval(()=>{ aiText.textContent+=text[i]; i++; if(i>=text.length) clearInterval(iv); },15);
+  } catch(e) {
+    aiText.className='';
+    aiText.innerHTML=`⚠️ Gemini API 오류: ${e.message}\n👉 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#a78bfa">API Key 재발급</a>`;
+  }
+  btn.disabled=false; btn.innerHTML='<span>✦</span> 다시 예측';
+}
+
+// ===== 검색 =====
+const searchInput=document.getElementById('searchInput');
+const searchResults=document.getElementById('searchResults');
+searchInput.addEventListener('input',()=>{
+  const q=searchInput.value.trim().toLowerCase();
+  if(!q){searchResults.classList.remove('show');return;}
+  const matches=SEARCH_LIST.filter(s=>s.name.includes(q)||s.code.toLowerCase().includes(q)||(s.short||'').includes(q)).slice(0,8);
+  if(!matches.length){searchResults.classList.remove('show');return;}
+  searchResults.innerHTML=matches.map(s=>`<div class="search-item" data-code="${s.code}"><div class="sname">${s.name}</div><div class="scode">${s.code}</div></div>`).join('');
   searchResults.classList.add('show');
-  searchResults.querySelectorAll('.search-item').forEach(el => {
-    el.addEventListener('click', () => {
-      const s = SEARCH_LIST.find(x => x.code === el.dataset.code);
-      if (s) { selectStock(s); searchInput.value = ''; searchResults.classList.remove('show'); }
+  searchResults.querySelectorAll('.search-item').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const s=SEARCH_LIST.find(x=>x.code===el.dataset.code);
+      if(s){selectStock(s);searchInput.value='';searchResults.classList.remove('show');}
     });
   });
 });
-document.addEventListener('click', e => {
-  if (!e.target.closest('.search-wrap')) searchResults.classList.remove('show');
+document.addEventListener('click',e=>{ if(!e.target.closest('.search-wrap')) searchResults.classList.remove('show'); });
+
+// ===== 범위 탭 =====
+document.getElementById('rangeTabs').addEventListener('click',e=>{
+  const tab=e.target.closest('.range-tab'); if(!tab) return;
+  document.querySelectorAll('.range-tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active'); state.range=tab.dataset.range;
+  loadChart(state.selected.code, state.range);
 });
 
-// ========== RANGE TABS ==========
-document.getElementById('rangeTabs').addEventListener('click', e => {
-  const tab = e.target.closest('.range-tab');
-  if (!tab) return;
-  document.querySelectorAll('.range-tab').forEach(t => t.classList.remove('active'));
-  tab.classList.add('active');
-  state.currentRange = tab.dataset.range;
-  loadChart(state.selectedStock.code, state.currentRange);
-});
-
-// ========== PREDICT BUTTON ==========
+// ===== 예측 버튼 =====
 document.getElementById('btnPredict').addEventListener('click', runPrediction);
 
-// ========== AUTO UPDATE ==========
+// ===== 자동 갱신 =====
 async function refresh() {
-  document.getElementById('updateTime').textContent = now();
   await updateKospi();
-  // Refresh selected stock price quietly
-  const d = await fetchQuote(state.selectedStock.code);
-  if (d) {
-    const price = d.meta.regularMarketPrice;
-    const prev = d.meta.chartPreviousClose || d.meta.previousClose;
-    const change = price - prev;
-    const pct = (change/prev)*100;
-    document.getElementById('chartPrice').textContent = fmt(price);
-    document.getElementById('chartPrice').className = 'chart-price '+colorClass(change);
-    document.getElementById('chartChange').innerHTML =
-      `<span class="${colorClass(change)}">${fmtSign(change)} (${fmtPct(pct)})</span>`;
-    state.stockData[state.selectedStock.code] = {
-      ...state.stockData[state.selectedStock.code],
-      meta: d.meta,
-    };
-  }
+  try {
+    const d=await fetchChart(state.selected.code,'1m','1d');
+    const m=d.meta, price=m.regularMarketPrice, prev=m.chartPreviousClose||m.previousClose;
+    const chg=price-prev, pct=(chg/prev)*100;
+    document.getElementById('chartPrice').textContent=fmt(price);
+    document.getElementById('chartPrice').className='chart-price '+cc(chg);
+    document.getElementById('chartChange').innerHTML=`<span class="${cc(chg)}">${fmtSign(chg)} (${fmtPct(pct)})</span>`;
+    if(state.stockData[state.selected.code]) state.stockData[state.selected.code].meta=m;
+  } catch(e){}
+  document.getElementById('updateTime').textContent=nowStr();
 }
 
-// ========== INIT ==========
+// ===== 초기화 =====
 async function init() {
+  setStatus('초기화 중...');
   await updateKospi();
   await loadStockList();
   await selectStock(POPULAR_STOCKS[0]);
-  document.getElementById('updateTime').textContent = now();
-  // Auto-refresh every 60 seconds
   setInterval(refresh, 60000);
 }
-
 init();
 </script>
 </body>
